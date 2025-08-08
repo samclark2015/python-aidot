@@ -7,7 +7,7 @@ setuptools.setup(
     name="python-aidot",
     version="0.3.41",
     author="aidotdev2024",
-    url='https://github.com/Aidot-Development-Team/python-aidot',
+    url="https://github.com/Aidot-Development-Team/python-aidot",
     description="aidot control wifi lights",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -16,6 +16,7 @@ setuptools.setup(
         "requests",
         "aiohttp",
         "setuptools",
+        "cryptography",
     ],
     classifiers=(
         "Programming Language :: Python :: 3.12",

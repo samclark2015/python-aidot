@@ -1,11 +1,11 @@
-import socket
-import json
-import time
-import logging
 import asyncio
+import json
+import logging
+import socket
+import time
 from typing import Any
 
-from .aes_utils import aes_encrypt, aes_decrypt
+from .aes_utils import aes_decrypt, aes_encrypt
 from .const import CONF_ID, CONF_IPADDRESS
 from .exceptions import AidotOSError
 
@@ -122,7 +122,7 @@ class Discover:
                     return
 
     async def fetch_devices_info(self) -> dict[str, str]:
-        self.try_create_broadcast()
+        await self.try_create_broadcast()
         self._broadcast_protocol.send_broadcast()
         await asyncio.sleep(2)
         return self.discovered_device
