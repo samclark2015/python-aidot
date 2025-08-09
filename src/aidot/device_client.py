@@ -1,22 +1,22 @@
 """The aidot integration."""
 
+import asyncio
 import ctypes
+import json
+import logging
 import socket
 import struct
 import time
-import json
-import asyncio
-import logging
 from datetime import datetime
 from typing import Any
 
-from .exceptions import AidotNotLogin
-from .aes_utils import aes_encrypt, aes_decrypt
+from .aes_utils import aes_decrypt, aes_encrypt
 from .const import (
     CONF_AES_KEY,
     CONF_ASCNUMBER,
     CONF_ATTR,
     CONF_CCT,
+    CONF_DIMMING,
     CONF_HARDWARE_VERSION,
     CONF_ID,
     CONF_IDENTITY,
@@ -26,7 +26,6 @@ from .const import (
     CONF_MODEL_ID,
     CONF_NAME,
     CONF_ON_OFF,
-    CONF_DIMMING,
     CONF_PASSWORD,
     CONF_PAYLOAD,
     CONF_PRODUCT,
@@ -35,6 +34,7 @@ from .const import (
     CONF_SERVICE_MODULES,
     Identity,
 )
+from .exceptions import AidotNotLogin
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -119,6 +119,7 @@ class DeviceClient(object):
         self.status = DeviceStatusData()
         self.info = DeviceInformation(device)
         self.user_id = user_info.get(CONF_ID)
+        self.discovered = asyncio.Event()
 
         if CONF_AES_KEY in device:
             key_string = device[CONF_AES_KEY][0]
@@ -148,6 +149,8 @@ class DeviceClient(object):
 
     def update_ip_address(self, ip: str) -> None:
         self._ip_address = ip
+        if ip is not None:
+            self.discovered.set()
 
     async def async_login(self) -> None:
         if self._ip_address is None:

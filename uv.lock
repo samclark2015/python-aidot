@@ -406,10 +406,10 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aiohttp", specifier = ">=3.12.15" },
-    { name = "cryptography", specifier = ">=45.0.6" },
-    { name = "requests", specifier = ">=2.32.4" },
-    { name = "setuptools", specifier = ">=80.9.0" },
+    { name = "aiohttp", specifier = ">=3.12" },
+    { name = "cryptography", specifier = ">=45" },
+    { name = "requests", specifier = ">=2.32" },
+    { name = "setuptools", specifier = ">=80.9" },
 ]
 
 [[package]]

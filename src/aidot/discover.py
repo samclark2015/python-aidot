@@ -1,6 +1,7 @@
 import asyncio
 import json
 import logging
+import os
 import socket
 import time
 from typing import Any
@@ -27,7 +28,8 @@ class BroadcastProtocol:
 
     def connection_made(self, transport) -> None:
         self.transport = transport
-        sock = transport.get_extra_info("socket")
+        sock: socket.socket = transport.get_extra_info("socket")
+        print("Discovery listening on:", sock.getsockname())
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
     def send_broadcast(self) -> None:
@@ -56,6 +58,7 @@ class BroadcastProtocol:
             _LOGGER.error(f"{self.user_id}:Connection lost due to error: {error}")
 
     def datagram_received(self, data, addr) -> None:
+        print(f"Received {len(data)} bytes from {addr}")
         data_str = aes_decrypt(data, self.aes_key)
         data_json = json.loads(data_str)
         if "payload" in data_json:
@@ -65,6 +68,7 @@ class BroadcastProtocol:
                     self._discover_cb(devId, {CONF_IPADDRESS: addr[0]})
 
     def error_received(self, exc) -> None:
+        print("Error received:", exc)
         _LOGGER.error(f"{self.user_id}:Error occurred: {exc}")
 
     def close(self) -> None:
@@ -91,6 +95,7 @@ class Discover:
         self.discovered_device = {}
         self._login_info = login_info
         self._callback = callback
+        self._port = int(os.environ.get("AIDOT_DISCOVER_PORT", "0"))
 
     async def try_create_broadcast(self) -> None:
         if self._broadcast_protocol is None:
@@ -103,7 +108,7 @@ class Discover:
                     protocol,
                 ) = await asyncio.get_event_loop().create_datagram_endpoint(
                     lambda: self._broadcast_protocol,
-                    local_addr=("0.0.0.0", 0),
+                    local_addr=("0.0.0.0", self._port),
                 )
             except OSError:
                 raise AidotOSError
